@@ -1,61 +1,180 @@
 
-[avg_prevalent_freq, std_prevalent_freq] = calculate_prevalent_freq(data, fs);
-hold on;
+figure();
 
-eixo = 1;
-%% join dynamic activities in group
-avg_din = 0;
-std_din = 0;
-for at = 1:3
-    avg_din = avg_din + avg_prevalent_freq(at,eixo);
-    std_din = std_din + std_prevalent_freq(at,eixo)^2;
+%labels = handler_label(n);
+labels = data{1,1}.y;
+aac_X = data{1,1}.data(:,1);
+aac_Y = data{1,1}.data(:,2);
+aac_Z = data{1,1}.data(:,3);
+
+
+simbs=["o","*","v","-"];
+plotsM=[];
+plotsP=[];
+plotsU=[];
+
+
+%%
+for i = 1: 12
+    %fprintf("atividades");
+    %disp(i);
+
+
+    [limInf, limSup] = janelas(labels,i, data);
+    %disp(limInf);
+    picosX = calcula_relevantes(limInf, limSup, aac_X);
+    %disp(picosX);
+
+
+    %[limInf, limSup] = janelas(labels,i, data);
+    picosY=calcula_relevantes(limInf, limSup,aac_Y);
+    %disp(picosY);
+    
+    
+    %[limInf, limSup] = janelas(labels,i, data);
+    picosZ=calcula_relevantes(limInf, limSup,aac_Z);
+    %disp(picosZ);
+
+    if i==1 %atividade 1
+        cor="b";
+        forma="o";
+    elseif i==2 %atividade 2
+        cor="g";
+        forma=".";
+    elseif i==3 %atividade 3
+        cor="r";
+        forma="x";
+    elseif i==4 %atividade 4
+        cor="c";
+        forma="+";
+    elseif i==5 %atividade 5
+        cor="m";
+        forma="s";
+    elseif i==6 %atividade 6
+        cor="k";
+        forma="d";
+    elseif i==7 %atividade 7
+        cor="k";
+        forma="*";
+    elseif i==8 %atividade 8
+        cor="r";
+        forma=".";
+    elseif i>=9 %atividade 9
+        cor="b";
+        forma="v";
+    elseif i>=10 %atividade 10
+        cor="c";
+        forma="o";
+    elseif i>=11 %atividade 11
+        cor="m";
+        forma="x";
+    elseif i>=12 %atividade 12
+        cor="c";
+        forma="d";
+    end
+    
+    contap=1;
+     
+    for j=1:numel(picosX)
+        simb=strcat(cor,forma);
+        %hold on
+        if contap==1    %pico máximo
+            hold on
+            grid on
+            subplot(2,2,2);
+            plot3(picosX(j),picosY(j),picosZ(j),simb);
+            legend("1","2", "3", "4","5","6", "7", "8", "9","10", "11", "12");
+            title("Pico máximo");
+            xlabel('x');
+            ylabel('y');
+            zlabel('z');            
+            
+        elseif contap==2    %primeiro pico
+            hold on
+            grid on
+            subplot(2,2,3);
+            plot3(picosX(j),picosY(j),picosZ(j),simb);
+            title("Primeiro pico");
+            xlabel('x');
+            ylabel('y');
+            zlabel('z'); 
+
+        elseif contap==3    %ultimo pico
+            hold on
+            grid on
+            subplot(2,2,4);
+            plot3(picosX(j),picosY(j),picosZ(j),simb);
+            title("Ultimo pico");
+            xlabel('x');
+            ylabel('y');
+            zlabel('z'); 
+        
+        else    %media pico
+            hold on
+            grid on
+            subplot(2,2,1);
+            plot3(picosX(j),picosY(j),picosZ(j),simb);
+            title("media pico");
+        end
+        drawnow;
+        
+        contap=contap+1;
+        if mod(j,3)==0
+            contap=1;
+        end
+    end
 end
-avg_din = avg_din/3;
-std_din = sqrt(std_din/3);
+hold off
 
-%% join other activities in group
-avg_other = 0;
-std_other = 0;
-for at = 4:12
-    avg_other = avg_other + avg_prevalent_freq(at,eixo);
-    std_other = std_other + std_prevalent_freq(at,eixo)^2;
+function [limInf, limSup] = janelas(matriz_exp,atividade, data)
+    j=1;
+    limInf=[];
+    limSup=[];
+    %disp(size(matriz_exp))
+    for i=1:size(matriz_exp)
+        if matriz_exp(i)==atividade && matriz_exp(i)~= matriz_exp(i+1)
+            limInf(j) = [data{1,1}.limInf(i)];
+            limSup(j) = [data{1,1}.limSup(i)];
+            j=j+1;
+        end
+    end
 end
-avg_other = avg_other/9;
-std_other = sqrt(std_other/9);
-
-%% plot gaussians
-hold on;
-x = linspace(-2, 3, 100);
-
-ydin = normpdf(x, avg_din,  std_din);
-plot(x,ydin);
-
-yother = normpdf(x, avg_other, std_other);
-plot(x,yother);
 
 
-title('Average prevalent frequency by activity type on X axis');
+function [picos] = calcula_relevantes(limInf,limSup,aac)
+    [~,numCols]=size(limInf);
+    %disp(numCols);
+    picos=[];
+    aux1=[];
+    aux2=[];
+    aux3=[];
+    %aux4=[];
 
-%% create classification rule
-% rule is intersection between gaussian density functions, taken from the
-% plot, x = 1.2323
-% if prevalent frequency on X axis is greater than 1.2323, it's a dynamic
-% activity
-rule = 1.2323;
-xline(rule,'--');
-legend('Dynamic', 'Others', 'decision rule', 'Location', 'northwest');
+    for i=1:numCols
+        X = aac(limInf(i):limSup(i));
+        X = detrend(X);
+        x = fftshift(fft(X));
+        
+        [aux1,aux2,aux3]=calcula_picos(x);
+        picos=[picos aux1 aux2 aux3];
+        disp(picos);
+    end
+end
 
-% TP = P(din > rule)
-% FN = P(din < rule)
-% FP = P(other > rule)
-% TN = P(other < rule)
-FN = normcdf(rule, avg_din, std_din);
-TP = 1 - FN;
-TN = normcdf(rule, avg_other, std_other);
-FP = 1 - TN;
-sens = TP/(TP+FN);
-spec = TN/(TN+FP);
-text(rule, 1.9, sprintf('x = %.4f', rule));
-text(-0.2, 1.9, sprintf('sensibility = %.1f%%', sens*100));
-text(-0.2, 1.8, sprintf('specificity = %.1f%%', spec*100));
-
+function [pico_max,primeiro,ultimo]=calcula_picos(matriz)
+    f=linspace(-25,25,numel(matriz));
+    ixp=find(f>=0);
+    f=f(ixp);
+    
+    m_X = abs(matriz);
+    
+    maximo=max(m_X);
+    [pks,locs] = findpeaks(abs(matriz(ixp)),'MinPeakHeight',maximo*0.4);
+    
+    %frequencias relevantes
+    pico_max=max(pks);
+    primeiro=f(locs(1));
+    ultimo=f(locs(numel(pks)));
+    media= mean(diff(pks));
+    %disp(media)
+end

@@ -1,74 +1,21 @@
-
-[avg_prevalent_freq, std_prevalent_freq] = calculate_prevalent_freq(data, fs);
-hold on;
-
-eixo = 3;
-%% join dynamic static in group
-avg_static = 0;
-std_static = 0;
-for at = 4:6
-    avg_static = avg_static + avg_prevalent_freq(at,eixo);
-    std_static = std_static + std_prevalent_freq(at,eixo)^2;
+  
+freq = zeros(2,1);% para um utilizador
+medias = zeros(1, 1); %Contem medias de freq_prevalente para cada eixo e cada atividade dinamica
+desvios = zeros(1, 1); %Contem desvios padrão de freq_prevalente para cada eixo e cada atividade dinamica
+for exp = 1:2
+    for atividade = 1:3
+        for i = 1:8
+            freq(exp, 1) = find_prevalent_frequency(data{exp}.dfts{atividade,1}, fs);
+        end
+        medias(atividade,:) = mean(freq);
+        desvios(atividade,:) = std(freq);
+    end
+    
 end
-avg_static = avg_static/3;
-std_static = sqrt(std_static/3);
+medias = medias*60;% numero medio de passos
+desvios = desvios*60;% desvios de passos
 
-%% join transition activities in group
-avg_trans = 0;
-std_trans = 0;
-for at = 7:12
-    avg_trans = avg_trans + avg_prevalent_freq(at,eixo);
-    std_trans = std_trans + std_prevalent_freq(at,eixo)^2;
-end
-avg_trans = avg_trans/6;
-std_trans = sqrt(std_trans/6);
-
-%% plot gaussians
-hold on;
-x = linspace(-0.4, 1, 100);
-
-ystatic = normpdf(x, avg_static,  std_static);
-plot(x,ystatic);
-
-ytrans = normpdf(x, avg_trans, std_trans);
-plot(x,ytrans);
-
-
-title('Average prevalent frequency by activity type on Z axis');
-
-%% create classification rule
-% rule is intersection between gaussian density functions, taken from the
-% plot, x = 0.117
-% if prevalent frequency on X axis is greater than 0.118, it's a transition
-% activity
-rule = 0.117;
-xline(rule,'--');
-legend('Static', 'Transitions', 'decision rule', 'Location', 'northwest');
-
-FN = normcdf(rule, avg_trans, std_trans);
-TP = 1 - FN;
-TN = normcdf(rule, avg_static, std_static);
-FP = 1 - TN;
-sens = TP/(TP+FN);
-spec = TN/(TN+FP);
-text(rule+0.01, 9.8, sprintf('x = %.4f', rule));
-text(rule+0.01, 9.5, sprintf('sensibility = %.1f%%', sens*100));
-text(rule+0.01, 9.2, sprintf('specificity = %.1f%%', spec*100));
-
-
-
-%% All Experiences - max(DFT) 3d plot  ======> 4.3
-% Dynamic VS (Transition & Static)
-exps = ["exp11_user06", "exp12_user06", "exp13_user07", "exp14_user07", "exp15_user08", "exp16_user08", "exp17_user09", "exp18_user09", "exp19_user10","exp20_user10"];
-figure();
-for k = exps
-    dft_max_3d_plot(k, fs,"true","Magnitude");
-    hold on;
-end
-[x,y,z] = sphere;
-surf(22*x,25*y,25*z);
-ax = gca;
-ax.XLim(1) = 0;
-ax.YLim(1) = 0;
-ax.ZLim(1) = 0;
-
+fprintf("\t\t\t\tMedias\tDesvios\n");
+disp("Atividade 1   " + medias(1) + "   " + desvios(1));
+disp("Atividade 2   " + medias(2) + "   " + desvios(2));
+disp("Atividade 3   " + medias(3) + "   " + desvios(3));

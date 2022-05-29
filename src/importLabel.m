@@ -20,6 +20,8 @@ function data = importLabel(data)
     for i = 1:length(data)
         %Criar um novo campo na estutura de cada user
         data{i}.y = zeros(length(data{i}.data), 1);
+        data{i}.limInf = zeros(length(data{i}.data), 1);
+        data{i}.limSup = zeros(length(data{i}.data), 1);
     end
     
     for linha = 1:length(labels_data)
@@ -28,6 +30,8 @@ function data = importLabel(data)
             for i = labels_data(linha, 4):labels_data(linha, 5)
                 %Colocar os valores correspodentes as atividades na cell data
                 data{labels_data(linha, 1)-49}.y(i) = labels_data(linha, 3);
+                data{labels_data(linha, 1)-49}.limInf(i) = labels_data(linha, 4);
+                data{labels_data(linha, 1)-49}.limSup(i) = labels_data(linha, 5);
             end
         end
     end
