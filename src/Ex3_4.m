@@ -1,14 +1,12 @@
 
 %%
-% sofia projeto
-%
-figure(26);
+figure();
 
-%labels = handler_label(n);
-labels = data{1,1}.y;
-aac_X = data{1,1}.data(:,1);
-aac_Y = data{1,1}.data(:,2);
-aac_Z = data{1,1}.data(:,3);
+user=1;
+labels = data{1,user}.y;
+aac_X = data{1,user}.data(:,1);
+aac_Y = data{1,user}.data(:,2);
+aac_Z = data{1,user}.data(:,3);
 
 
 simbs=["o","*","v","-"];
@@ -19,11 +17,10 @@ plotsU=[];
 
 %%
 for i = 1: 12
-    fprintf("atividades");
-    disp(i);
+    %fprintf("atividades");
+    %disp(i);
 
-
-    [limInf, limSup] = janelas(labels,i, data);
+    [limInf, limSup] = janelas(labels,i, data, user);
     %disp(limInf);
     picosX = calcula_relevantes(limInf, limSup, aac_X);
     %disp(picosX);
@@ -97,20 +94,19 @@ for i = 1: 12
 end
 hold off
 
-function [limInf, limSup] = janelas(matriz_exp,atividade, data)
+function [limInf, limSup] = janelas(matriz_exp,atividade, data, user)% user
     j=1;
     limInf=[];
     limSup=[];
     %disp(size(matriz_exp))
     for i=1:size(matriz_exp)
         if matriz_exp(i)==atividade && matriz_exp(i)~= matriz_exp(i+1)
-            limInf(j) = [data{1,1}.limInf(i)];
-            limSup(j) = [data{1,1}.limSup(i)];
+            limInf(j) = [data{1,user}.limInf(i)];
+            limSup(j) = [data{1,user}.limSup(i)];
             j=j+1;
         end
     end
 end
-
 
 function [picos] = calcula_relevantes(limInf,limSup,aac)
     [~,numCols]=size(limInf);
@@ -119,7 +115,6 @@ function [picos] = calcula_relevantes(limInf,limSup,aac)
     aux1=[];
     aux2=[];
     aux3=[];
-    %aux4=[];
 
     for i=1:numCols
         X = aac(limInf(i):limSup(i));
@@ -128,7 +123,7 @@ function [picos] = calcula_relevantes(limInf,limSup,aac)
         
         [aux1,aux2,aux3]=calcula_picos(x);
         picos=[picos aux1 aux2 aux3];
-        disp(picos);
+        %disp(picos);
     end
 end
 
@@ -146,6 +141,4 @@ function [pico_max,primeiro,ultimo]=calcula_picos(matriz)
     pico_max=max(pks);
     primeiro=f(locs(1));
     ultimo=f(locs(numel(pks)));
-    media= mean(diff(pks));
-    %disp(media)
 end

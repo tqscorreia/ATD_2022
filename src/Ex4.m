@@ -12,10 +12,10 @@ frequencies= linspace(-fs/2, fs/2, numFrame);
 for i=1: numFrame-numLap:nElemGraph-numFrame
     frame=graphZ(i:i+numFrame-1);
     absoluteFrame= abs(fftshift(fft(frame)));
-    spectrum= [spectrum absoluteFrame(frequencies>=0)];
+    spectrum = horzcat(spectrum,absoluteFrame(frequencies>=0));
 end
-figure();
-title("ACC_Z Spectrum");
+figure('Name','Espetro','NumberTitle','off');
 imagesc(20*log10(spectrum));
 colorbar;
 set(gca,'YDir','normal');
+

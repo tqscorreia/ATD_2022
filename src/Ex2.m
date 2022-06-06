@@ -52,13 +52,13 @@ function represent_grafica(user_data)
             	a = axis;
                 % Alterna a escrita da atividade nos graficos
                 if rem(cnt, 2) == 0
-                	y = a(4);
+                	y = a(4)+0.05;
                 else
                 	y = a(3)+0.1;
                 end
                 cnt = cnt + 1;
                 % Escreve a atividade nos graficos
-                text(linha/50, y, user_data.y_text(linha),'FontSize',7); 
+                text(linha/50, y, user_data.y_text(linha),'FontSize',7.5); 
             end
         end
     end

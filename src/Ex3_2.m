@@ -1,8 +1,10 @@
 
+% ==================== Ex3_2  ====================
+% Descrição: Esta função faz o print dos limites de frequencia 
+% para os varios eixos por atividade.
+%      
+% =================================================
 [minFreq, maxFreq] = calculate_limits_freq(data, fs);
-
-
-eixo = 3;
 
 for at = 1:12
     if (at == 1)
@@ -13,9 +15,15 @@ for at = 1:12
          disp("Atividades de Transiçao")
     end
 
-    minValue = minFreq(at,eixo);
-    maxValue = maxFreq(at,eixo);
-    disp("Limites para a atividade " + at + " no eixo " + eixo + ": [" + minValue + "; " + maxValue +"]");
+    minValueX = minFreq(at,1);
+    maxValueX = maxFreq(at,1);
+
+    minValueY = minFreq(at,2);
+    maxValueY = maxFreq(at,2);
+
+    minValueZ = minFreq(at,3);
+    maxValueZ = maxFreq(at,3);
+    disp("Limites para a atividade " + at + " no eixo X : [" + minValueX + "; " + maxValueX +"], no eixo Y : [" + minValueY + "; " + maxValueY +"], no eixo Z : [" + minValueZ+ "; " + maxValueZ +"]");
 
 end
 

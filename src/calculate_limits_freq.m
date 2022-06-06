@@ -1,4 +1,21 @@
 function [minFreq, maxFreq] = calculate_limits_freq(data, fs, ordem)
+    % ==================== calculate_limits_freq  ==============
+	% Descrição: Esta função calcula e guarda a informaçao da frequencia 
+    % maxima e minima para todas as atividades realizadas por um
+    % determinado utiliazador em todos os eixos.
+    %
+	% Argumentos:
+	%		>>> data: estrutura onde se gurda toda a informaçao 
+    %       relativa a uma expriencia como parametros
+    %       >>> fs: frequencia utilizada nos sinais(50Hz)
+    %       >>> ordem: 
+    % Return: 
+    %       >>> minFreq: matriz com frequencia minima obtida em cada
+    %       atividade
+    %       >>> maxFreq: matriz com frequencia maxima obtida em cada
+    %       atividade
+    % ==========================================================
+
     if nargin ~= 3
         ordem = 1;
     end
